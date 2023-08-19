@@ -3,16 +3,19 @@ const { HttpError } = require("../helpers");
 const validateBody = (schema) => {
   const func = (req, res, next) => {
     // проверка на пустое тело
-    const { name, email, phone } = req.body;
-    if (!name && !email && !phone) {
-      throw HttpError(400, `missing fields`)
-    };
+    // const { name, email, phone } = req.body;
+    // if (!name && !email && !phone) {
+    //   throw HttpError(400, `missing fields`)
+    // };
 
     const { error } = schema.validate(req.body);
     if (error) {
       const errorType = error.details[0];
+      if (errorType.path[0] === 'favorite') {
+        throw HttpError(400, `missing field favorite`)
+      }      
       // проверка на заполнение всех полей
-      if (errorType.type === 'any.required') {
+      else if (errorType.type === 'any.required') {
         throw HttpError(400, `missing required ${errorType.path[0]} field`)
       }
       // проверка на валидность
@@ -25,21 +28,21 @@ const validateBody = (schema) => {
   return func;
 };
 
-const validateFavorite = (schema) => {
-  const func = (req, res, next) => {
-    // проверка на пустое тело при updateStatusContact
-    const { favorite } = req.body;
-    if (!favorite && favorite !== false) {
-      throw HttpError(400, `missing field favorite`)
-    };
-    next();
-  };
+// const validateFavorite = (schema) => {
+//   const func = (req, res, next) => {
+//     // проверка на пустое тело при updateStatusContact
+//     const { favorite } = req.body;
+//     if (!favorite && favorite !== false) {
+//       throw HttpError(400, `missing field favorite`)
+//     };
+//     next();
+//   };
 
-  return func;
-};
+//   return func;
+// };
 
 module.exports = { 
   validateBody, 
-  validateFavorite,
+  // validateFavorite,
 };
 
