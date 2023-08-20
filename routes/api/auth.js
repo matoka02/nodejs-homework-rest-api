@@ -8,8 +8,11 @@ const {schemas} = require("../../schemas/validatorUsers");
 
 const router = express.Router();
 
-// signup
+// signUp
 router.post("/register", validateBody(schemas.registerSchema), ctrl.register);
+
+// signIn
+router.post("/login", validateBody(schemas.loginSchema), ctrl.login);
 
 
 module.exports = router;
