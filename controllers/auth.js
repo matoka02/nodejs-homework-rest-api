@@ -32,10 +32,12 @@ const register = async (req, resp) => {
 
 const login = async (req, resp) => {
   const { email, password } = req.body;
+  // проверка существования пользователя по email
   const user = await User.findOne({ email });
   if (!user) {
     throw HttpError(401, "Email or password is wrong");
-  }
+  };
+  // проверка пароля
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
     throw HttpError(401, "Email or password is wrong");
