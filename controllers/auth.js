@@ -72,9 +72,17 @@ const getCurrent = async (req, res) => {
   res.json({ email, subscription });
 };
 
+const update = async (req, res) => {
+  const {id} = req.params;
+  console.log('ola',id);
+  const user =  await User.findByIdAndUpdate({ _id: id }, req.body, { new: true });
+  res.status(200).json(user);
+}
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
+  update: ctrlWrapper(update),
 };
