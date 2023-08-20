@@ -14,5 +14,10 @@ router.post("/register", validateBody(schemas.registerSchema), ctrl.register);
 // signIn
 router.post("/login", validateBody(schemas.loginSchema), ctrl.login);
 
+router.post("/logout", authenticate, ctrl.logout);
+
+router.get('/current', authenticate, ctrl.getCurrent);
+
+
 
 module.exports = router;

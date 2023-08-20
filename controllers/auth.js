@@ -7,7 +7,7 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 
 const { SECRET_KEY } = process.env;
 
-const register = async (req, resp) => {
+const register = async (req, res) => {
   // заполнение поля по умолчанию
   let { subscription } = req.body;
   if (!subscription) {
@@ -22,7 +22,7 @@ const register = async (req, resp) => {
 
   const hashPassword = await bcrypt.hash(password, 10);
   const newUser = await User.create({ ...req.body, password: hashPassword });
-  resp.status(201).json({
+  res.status(201).json({
     email: newUser.email,
     // password: newUser.password,
     // password,
@@ -30,7 +30,7 @@ const register = async (req, resp) => {
   });
 };
 
-const login = async (req, resp) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
   // проверка существования пользователя по email
   const user = await User.findOne({ email });
@@ -50,7 +50,7 @@ const login = async (req, resp) => {
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "24h" });
   // запись токена в БД
   await User.findByIdAndUpdate(user._id, {token});
-  resp.json({
+  res.json({
     token,
     user: {
       email: user.email,
@@ -59,9 +59,22 @@ const login = async (req, resp) => {
   });
 };
 
+const logout = async (req, res) => {
+  const {_id} = req.user;
+  await User.findByIdAndUpdate(_id, {token: ''});
+  res.status(204).json({
+    message: 'Logout success'
+  })
+};
+
+const getCurrent = async (req, res) => {
+  const { email, subscription } = req.user;
+  res.json({ email, subscription });
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
-  // getCurrent: ctrlWrapper(getCurrent),
-  // logout: ctrlWrapper(logout),
+  getCurrent: ctrlWrapper(getCurrent),
+  logout: ctrlWrapper(logout),
 };
