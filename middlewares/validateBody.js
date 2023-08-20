@@ -5,10 +5,11 @@ const validateBody = (schema) => {
     const { error } = schema.validate(req.body);
     if (error) {
       const errorType = error.details[0];
+      // PATCH/contacts/contactId/favorite
       if (errorType.path[0] === 'favorite') {
         throw HttpError(400, `missing field favorite`)
       }      
-      // проверка на заполнение всех полей
+      // POST/contacts, POST/contacts/contactId
       else if (errorType.type === 'any.required') {
         throw HttpError(400, `missing required ${errorType.path[0]} field`)
       }
