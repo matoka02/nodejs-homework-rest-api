@@ -23,10 +23,14 @@ const register = async (req, res) => {
   const hashPassword = await bcrypt.hash(password, 10);
   const newUser = await User.create({ ...req.body, password: hashPassword });
   res.status(201).json({
-    email: newUser.email,
-    // password: newUser.password,
-    // password,
-    subscription,
+    'user': {
+      email: newUser.email,
+      subscription,
+    }
+    // email: newUser.email,
+    // // password: newUser.password,
+    // // password,
+    // subscription,
   });
 };
 
@@ -74,7 +78,6 @@ const getCurrent = async (req, res) => {
 
 const update = async (req, res) => {
   const {id} = req.params;
-  console.log('ola',id);
   const user =  await User.findByIdAndUpdate({ _id: id }, req.body, { new: true });
   res.status(200).json(user);
 }
