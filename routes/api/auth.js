@@ -2,7 +2,7 @@ const express = require("express");
 
 const ctrl = require("../../controllers/auth");
 
-const {validateBody, authenticate, isValidId} = require("../../middlewares");
+const {validateBody, authenticate, isValidId, isValidIdUser} = require("../../middlewares");
 
 const {schemas} = require("../../schemas/validatorUsers");
 
@@ -18,6 +18,6 @@ router.post("/logout", authenticate, ctrl.logout);
 
 router.get('/current', authenticate, ctrl.getCurrent);
 
-router.patch('/:id/subscription', authenticate, isValidId, validateBody(schemas.subscribtionSchema), ctrl.update);
+router.patch('/:id/subscription', authenticate, isValidIdUser, validateBody(schemas.subscribtionSchema), ctrl.update);
 
 module.exports = router;
