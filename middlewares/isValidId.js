@@ -10,4 +10,12 @@ const isValidId = (req, res, next) => {
   next();
 };
 
-module.exports = isValidId;
+const isValidIdUser = (req, res, next) => {
+  const { id } = req.params;
+  if (!isValidObjectId(id)) {
+    next(HttpError(400, `${id} is not valid id`));
+  }
+  next();
+};
+
+module.exports = {isValidId, isValidIdUser};

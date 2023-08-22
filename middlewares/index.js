@@ -1,10 +1,11 @@
 const {validateBody, validateFavorite} = require("./validateBody");
-const handleMongooseError = require('./handleMongooseError');
-const isValidId = require('./isValidId');
+const {isValidId, isValidIdUser} = require('./isValidId');
+const authenticate = require('./authenticate');
 
 module.exports = {
     validateBody,
     validateFavorite,
-    handleMongooseError,
-    isValidId
+    isValidId,
+    isValidIdUser,
+    authenticate
 }
