@@ -1,6 +1,5 @@
 const joi = require("joi");
 
-// const emailRegexp = require("../models/user");
 const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 const registerSchema = joi.object({
