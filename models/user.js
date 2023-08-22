@@ -25,6 +25,10 @@ const userSchema = new Schema(
 			type: String,
 			default: null,
 		},
+		avatarURL: {
+			type: String,
+			required: true,
+		}
   },
   { versionKey: false, timestamps: true }
 );
@@ -35,7 +39,6 @@ const User = model('user', userSchema);
 
 module.exports = {
   User,
-	emailRegexp,
   // addSchema,
   // schemas
 };
