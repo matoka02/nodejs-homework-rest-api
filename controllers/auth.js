@@ -1,11 +1,18 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require('gravatar');
+const path = require("path");
+const fs = require("fs/promises");
 
 const { User } = require("../models/user");
-
 const { HttpError, ctrlWrapper } = require("../helpers");
+const { resizeImg } = require('../helpers');
+
 
 const { SECRET_KEY } = process.env;
+
+const avatarDir = path.join(__dirname, "../", "public", "avatars");
+
 
 const register = async (req, res) => {
   // заполнение поля по умолчанию
@@ -19,18 +26,18 @@ const register = async (req, res) => {
   if (user) {
     throw HttpError(409, "Email in use");
   };
-
+  // хеширование пароля, генерация аватара
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+
+  const newUser = await User.create({ ...req.body, password: hashPassword, avatarURL });
   res.status(201).json({
     'user': {
       email: newUser.email,
       subscription,
     }
-    // email: newUser.email,
-    // // password: newUser.password,
-    // // password,
-    // subscription,
+    // password: newUser.password,
+    // password,
   });
 };
 
@@ -46,17 +53,15 @@ const login = async (req, res) => {
   if (!passwordCompare) {
     throw HttpError(401, "Email or password is wrong");
   }
-
-  const payload = {
-    id: user._id,
-  };
-
+  // генерация токена
+  const payload = { id: user._id };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "24h" });
-  // запись токена в БД
+
   await User.findByIdAndUpdate(user._id, {token});
   res.json({
     token,
     user: {
+      _id: user.id,
       email: user.email,
       subscription: user.subscription,
     }
@@ -76,17 +81,41 @@ const getCurrent = async (req, res) => {
   res.json({ email, subscription });
 };
 
-const update = async (req, res) => {
+const updateSubscribtion = async (req, res) => {
   const {id} = req.params;
-  console.log('ola',id);
   const user =  await User.findByIdAndUpdate({ _id: id }, req.body, { new: true });
   res.status(200).json(user);
-}
+};
+
+const updateAvatar = async (req, res) => {
+  const {_id} = req.user;
+  if (!req.file) {
+    // return res.send('Please add a picture for the avatar')
+    throw HttpError(404, `Please add a picture for the avatar`)
+  };
+  const {path: tempUpload, originalname} = req.file;
+  console.log(req.file);
+  // resizeImg(tempUpload);
+
+  const filename = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarDir, filename);
+
+  await fs.rename(tempUpload, resultUpload);
+  
+  const avatarURL = path.join('avatars', filename);
+
+  resizeImg(resultUpload);  
+  
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.status(200).json({avatarURL});
+};
 
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
-  update: ctrlWrapper(update),
+  updateSubscribtion: ctrlWrapper(updateSubscribtion),
+  updateAvatar: ctrlWrapper(updateAvatar),
 };
