@@ -3,17 +3,14 @@ const jwt = require("jsonwebtoken");
 const gravatar = require('gravatar');
 const path = require("path");
 const fs = require("fs/promises");
-// const { fileURLToPath } = require('url');
 
 const { User } = require("../models/user");
 const { HttpError, ctrlWrapper } = require("../helpers");
 const { resizeImg } = require('../helpers');
 
+
 const { SECRET_KEY } = process.env;
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-// const avatarDir = path.join(__dirname, '../', '../', 'public', 'avatars');
 const avatarDir = path.join(__dirname, "../", "public", "avatars");
 
 
@@ -93,11 +90,12 @@ const updateSubscribtion = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const {_id} = req.user;
   if (!req.file) {
-    return res.send('Please add a picture for the avatar')
+    // return res.send('Please add a picture for the avatar')
+    throw HttpError(404, `Please add a picture for the avatar`)
   };
   const {path: tempUpload, originalname} = req.file;
   console.log(req.file);
-  resizeImg(tempUpload);
+  // resizeImg(tempUpload);
 
   const filename = `${_id}_${originalname}`;
   const resultUpload = path.join(avatarDir, filename);
@@ -105,6 +103,9 @@ const updateAvatar = async (req, res) => {
   await fs.rename(tempUpload, resultUpload);
   
   const avatarURL = path.join('avatars', filename);
+
+  resizeImg(resultUpload);  
+  
   await User.findByIdAndUpdate(_id, { avatarURL });
 
   res.status(200).json({avatarURL});
